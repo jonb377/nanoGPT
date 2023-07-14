@@ -11,6 +11,7 @@ import math
 import inspect
 from dataclasses import dataclass
 
+import torch_xla.runtime as xr
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -298,7 +299,7 @@ class GPT(nn.Module):
         flops_per_iter = flops_per_fwdbwd * fwdbwd_per_iter
         # express our flops throughput as ratio of A100 bfloat16 peak flops
         flops_achieved = flops_per_iter * (1.0/dt) # per second
-        flops_promised = 312e12 # A100 GPU bfloat16 peak flops is 312 TFLOPS
+        flops_promised = 275e12 * xr.global_device_count() # 275TFLOPs for v4, 312e12 # A100 GPU bfloat16 peak flops is 312 TFLOPS
         mfu = flops_achieved / flops_promised
         return mfu
 
